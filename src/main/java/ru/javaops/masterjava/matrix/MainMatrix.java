@@ -16,16 +16,16 @@ public class MainMatrix {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        //task1Test();
+        task1Test();
 
-        mainTest();
+        //mainTest();
 
     }
 
     private static void task1Test() throws ExecutionException, InterruptedException {
 
         final int NUM_OPT1 = 1;
-        final int NUM_OPT2 = 3;
+        final int NUM_OPT2 = 4;
 
         final int[][] matrixA = MatrixUtil.create(MATRIX_SIZE);
         final int[][] matrixB = MatrixUtil.create(MATRIX_SIZE);
@@ -74,7 +74,7 @@ public class MainMatrix {
             System.out.println("Pass " + count);
             long start = System.currentTimeMillis();
             //final int[][] matrixC = MatrixUtil.singleThreadMultiply(matrixA, matrixB);
-            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(3,matrixA, matrixB);
+            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(1,matrixA, matrixB);
             double duration = (System.currentTimeMillis() - start) / 1000.;
             out("Single thread time, sec: %.3f", duration);
             singleThreadSum += duration;

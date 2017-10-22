@@ -35,7 +35,7 @@ public class MatrixUtil {
         }
     }
 
-    public static List<Result> iterationMultiply(final int i,final int matrixSize, int[][] matrixA, int[][] matrixB) {
+    public static List<Result> iterationMultiply(final int i, final int matrixSize, int[][] matrixA, int[][] matrixB) {
 
         List<Result> results = new ArrayList<>();
 
@@ -80,7 +80,7 @@ public class MatrixUtil {
             futures.add(completionService.submit(() -> iterationMultiply(finalI, matrixSize, matrixA, BT)));
         }
 
-        while (!futures.isEmpty()){
+        while (!futures.isEmpty()) {
             Future<List<Result>> future = completionService.poll(10, TimeUnit.SECONDS);
             for (Result result : future.get()) {
                 matrixC[result.getI()][result.getJ()] = result.getSum();
@@ -114,7 +114,7 @@ public class MatrixUtil {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
-        int BT[][] = new int[matrixSize][matrixSize];
+        final int BT[][] = new int[matrixSize][matrixSize];
         for (int i = 0; i < matrixSize; i++) {
             for (int j = 0; j < matrixSize; j++) {
                 BT[j][i] = matrixB[i][j];
@@ -188,6 +188,31 @@ public class MatrixUtil {
         return matrixC;
     }
 
+    public static int[][] singleThreadMultiplyOpt4(int[][] matrixA, int[][] matrixB) {
+        final int matrixSize = matrixA.length;
+        final int[][] matrixC = new int[matrixSize][matrixSize];
+        final int thatColumn[] = new int[matrixSize];
+
+        for (int j = 0; j < matrixSize; j++) {
+            for (int k = 0; k < matrixSize; k++) {
+                thatColumn[k] = matrixB[k][j];
+            }
+
+            for (int i = 0; i < matrixSize; i++) {
+                int thisRow[] = matrixA[i];
+
+                int sum = 0;
+                for (int k = 0; k < matrixSize; k++) {
+                    sum += thisRow[k] * thatColumn[k];
+                }
+                matrixC[i][j] = sum;
+            }
+            ;
+        }
+
+        return matrixC;
+    }
+
     public static int[][] singleThreadMultiplyOpt(int numOpt, int[][] matrixA, int[][] matrixB) {
 
         final int[][] matrixC;
@@ -202,6 +227,10 @@ public class MatrixUtil {
             case 3:
                 matrixC = singleThreadMultiplyOpt3(matrixA, matrixB);
                 break;
+            case 4:
+                matrixC = singleThreadMultiplyOpt4(matrixA, matrixB);
+                break;
+
             default:
                 matrixC = singleThreadMultiply(matrixA, matrixB);
         }
