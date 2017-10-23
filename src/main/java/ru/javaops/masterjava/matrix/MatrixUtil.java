@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.matrix;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
@@ -265,28 +266,43 @@ public class MatrixUtil {
     }
 
     public static int[][] singleThreadMultiplyOpt4(int[][] matrixA, int[][] matrixB) {
+
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
-        final int thatColumn[] = new int[matrixSize];
 
-        for (int j = 0; j < matrixSize; j++) {
-            for (int k = 0; k < matrixSize; k++) {
-                thatColumn[k] = matrixB[k][j];
+        final int A[] = new int[matrixSize * matrixSize];
+        final int B[] = new int[matrixSize * matrixSize];
+
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                final int ij = i * matrixSize + j;
+                A[ij] = matrixA[i][j];
+                B[ij] = matrixB[i][j];
             }
+        }
 
-            for (int i = 0; i < matrixSize; i++) {
-                int thisRow[] = matrixA[i];
-
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
                 int sum = 0;
                 for (int k = 0; k < matrixSize; k++) {
-                    sum += thisRow[k] * thatColumn[k];
+
+                    final int ik = i * matrixSize + k;
+                    final int kj = k * matrixSize + j;
+
+                    sum += A[ik] * B[kj];
                 }
                 matrixC[i][j] = sum;
             }
-            ;
         }
 
         return matrixC;
+    }
+
+    public static int[][] singleThreadMultiplyOpt5(int[][] matrixA, int[][] matrixB) {
+
+
+
+        return null;
     }
 
     public static int[][] singleThreadMultiplyOpt(int numOpt, int[][] matrixA, int[][] matrixB) {
@@ -305,6 +321,10 @@ public class MatrixUtil {
                 break;
             case 4:
                 matrixC = singleThreadMultiplyOpt4(matrixA, matrixB);
+                break;
+
+            case 5:
+                matrixC = singleThreadMultiplyOpt5(matrixA, matrixB);
                 break;
 
             default:
