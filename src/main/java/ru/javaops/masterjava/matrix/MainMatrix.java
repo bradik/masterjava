@@ -37,13 +37,13 @@ public class MainMatrix {
         while (count < 6) {
             System.out.println("Pass " + count);
             long start = System.currentTimeMillis();
-            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(NUM_OPT1,matrixA, matrixB);
+            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(NUM_OPT1, matrixA, matrixB);
             double duration = (System.currentTimeMillis() - start) / 1000.;
             out("Orig impl time, sec: %.3f", duration);
             origThreadSum += duration;
 
             start = System.currentTimeMillis();
-            final int[][] concurrentMatrixC = MatrixUtil.singleThreadMultiplyOpt(NUM_OPT2,matrixA, matrixB);
+            final int[][] concurrentMatrixC = MatrixUtil.singleThreadMultiplyOpt(NUM_OPT2, matrixA, matrixB);
             duration = (System.currentTimeMillis() - start) / 1000.;
             out("New impl time, sec: %.3f", duration);
             optimThreadSum += duration;
@@ -74,13 +74,13 @@ public class MainMatrix {
             System.out.println("Pass " + count);
             long start = System.currentTimeMillis();
             //final int[][] matrixC = MatrixUtil.singleThreadMultiply(matrixA, matrixB);
-            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(1,matrixA, matrixB);
+            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(1, matrixA, matrixB);
             double duration = (System.currentTimeMillis() - start) / 1000.;
             out("Single thread time, sec: %.3f", duration);
             singleThreadSum += duration;
 
             start = System.currentTimeMillis();
-            final int[][] concurrentMatrixC = MatrixUtil.concurrentMultiply(matrixA, matrixB, executor);
+            final int[][] concurrentMatrixC = MatrixUtil.concurrentMultiplyOpt(1, matrixA, matrixB, executor);
             duration = (System.currentTimeMillis() - start) / 1000.;
             out("Concurrent thread time, sec: %.3f", duration);
             concurrentThreadSum += duration;

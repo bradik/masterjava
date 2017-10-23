@@ -35,7 +35,7 @@ public class MatrixUtil {
         }
     }
 
-    public static List<Result> iterationMultiply(final int i, final int matrixSize, int[][] matrixA, int[][] matrixB) {
+    public static List<Result> iteration(final int finalI, final int matrixSize, final int[][] matrixA, final int[][] matrixB) {
 
         List<Result> results = new ArrayList<>();
 
@@ -44,14 +44,15 @@ public class MatrixUtil {
             int sum = 0;
             for (int k = 0; k < matrixSize; k++) {
                 //sum += matrixA[i][k] * matrixB[k][j];
-                sum += matrixA[i][k] * matrixB[j][k];
+                sum += matrixA[finalI][k] * matrixB[j][k];
             }
 
-            results.add(new Result(i, j, sum));
+            results.add(new Result(finalI, j, sum));
 
         }
 
         return results;
+
     }
 
     // TODO implement parallel multiplication matrixA*matrixB
@@ -77,7 +78,7 @@ public class MatrixUtil {
 
         for (int i = 0; i < matrixSize; i++) {
             int finalI = i;
-            futures.add(completionService.submit(() -> iterationMultiply(finalI, matrixSize, matrixA, BT)));
+            futures.add(completionService.submit(() -> iteration(finalI, matrixSize, matrixA, BT)));
         }
 
         while (!futures.isEmpty()) {
@@ -87,6 +88,81 @@ public class MatrixUtil {
             }
 
             futures.remove(future);
+        }
+
+        return matrixC;
+    }
+
+    public static int[][] concurrentMultiplyOpt1(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
+
+
+        final int matrixSize = matrixA.length;
+        final int[][] matrixC = new int[matrixSize][matrixSize];
+
+        final int BT[][] = new int[matrixSize][matrixSize];
+
+
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                BT[j][i] = matrixB[i][j];
+            }
+        }
+
+
+        final CompletionService<int[][]> completionService = new ExecutorCompletionService<>(executor);
+
+        List<Future<int[][]>> futures = new ArrayList<>();
+
+        for (int i = 0; i < matrixSize; i++) {
+            int finalI = i;
+
+            futures.add(completionService.submit(() -> {
+
+                int results[][] = new int[matrixSize][3];
+
+                for (int j = 0; j < matrixSize; j++) {
+
+                    int sum = 0;
+                    for (int k = 0; k < matrixSize; k++) {
+                        //sum += matrixA[i][k] * matrixB[k][j];
+                        sum += matrixA[finalI][k] * BT[j][k];
+                    }
+
+                    results[j][0] = finalI;
+                    results[j][1] = j;
+                    results[j][2] = sum;
+
+                }
+
+                return results;
+
+            }));
+        }
+
+        while (!futures.isEmpty()) {
+            Future<int[][]> future = completionService.poll(10, TimeUnit.SECONDS);
+            for (int[] result : future.get()) {
+                matrixC[result[0]][result[1]] = result[2];
+            }
+
+            futures.remove(future);
+        }
+
+        return matrixC;
+    }
+
+
+    public static int[][] concurrentMultiplyOpt(int numOpt, int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
+
+        final int[][] matrixC;
+
+        switch (numOpt) {
+            case 1:
+                matrixC = concurrentMultiplyOpt1(matrixA, matrixB, executor);
+                break;
+
+            default:
+                matrixC = concurrentMultiply(matrixA, matrixB, executor);
         }
 
         return matrixC;
