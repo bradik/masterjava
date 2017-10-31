@@ -18,7 +18,7 @@ public class MatrixBenchmarkNew {
 
     private static final int MATRIX_SIZE = 1000;
 
-    @Param({"3"})
+    @Param({"3","10"})
     private int threadNumber;
 
     final int[][] matrixA = MatrixUtil.create(MATRIX_SIZE);
@@ -61,5 +61,13 @@ public class MatrixBenchmarkNew {
 
         return MatrixUtil.concurrentMultiplyOpt1(matrixA, matrixB, executor);
     }
+
+    @Benchmark
+    public int[][] concurrentMultiplyOpt2() throws Exception {
+
+        return MatrixUtil.concurrentMultiplyOpt2(matrixA, matrixB, executor);
+    }
+
+
 
 }

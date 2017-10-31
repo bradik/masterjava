@@ -237,5 +237,86 @@ public class MatrixUtil {
     }
 
 
+    private static class Result {
+
+        private int i, j;
+        private int sum;
+
+        public Result(int i, int j, int sum) {
+            this.i = i;
+            this.j = j;
+            this.sum = sum;
+        }
+
+        public int getI() {
+            return i;
+        }
+
+        public int getJ() {
+            return j;
+        }
+
+        public int getSum() {
+            return sum;
+        }
+    }
+
+    public static List<Result> iteration(final int finalI, final int matrixSize, final int[][] matrixA, final int[][] matrixB) {
+
+        List<Result> results = new ArrayList<>();
+
+        for (int j = 0; j < matrixSize; j++) {
+
+            int sum = 0;
+            for (int k = 0; k < matrixSize; k++) {
+                //sum += matrixA[i][k] * matrixB[k][j];
+                sum += matrixA[finalI][k] * matrixB[j][k];
+            }
+
+            results.add(new Result(finalI, j, sum));
+
+        }
+
+        return results;
+
+    }
+
+    // TODO implement parallel multiplication matrixA*matrixB
+    public static int[][] concurrentMultiplyOpt2(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
+
+
+        final int matrixSize = matrixA.length;
+        final int[][] matrixC = new int[matrixSize][matrixSize];
+
+        final int BT[][] = new int[matrixSize][matrixSize];
+
+
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                BT[j][i] = matrixB[i][j];
+            }
+        }
+
+
+        final CompletionService<List<Result>> completionService = new ExecutorCompletionService<>(executor);
+
+        List<Future<List<Result>>> futures = new ArrayList<>();
+
+        for (int i = 0; i < matrixSize; i++) {
+            int finalI = i;
+            futures.add(completionService.submit(() -> iteration(finalI, matrixSize, matrixA, BT)));
+        }
+
+        while (!futures.isEmpty()) {
+            Future<List<Result>> future = completionService.poll(10, TimeUnit.SECONDS);
+            for (Result result : future.get()) {
+                matrixC[result.getI()][result.getJ()] = result.getSum();
+            }
+
+            futures.remove(future);
+        }
+
+        return matrixC;
+    }
 
 }
