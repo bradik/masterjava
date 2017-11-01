@@ -31,6 +31,10 @@ public class StaxStreamProcessor implements AutoCloseable {
         return false;
     }
 
+    public String getAttributeValue(String localName){
+        return reader.getAttributeValue(null, localName);
+    }
+
     public String getValue(int event) throws XMLStreamException {
         return (event == XMLEvent.CHARACTERS) ? reader.getText() : reader.getLocalName();
     }
